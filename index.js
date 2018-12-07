@@ -1,11 +1,17 @@
 const cdk = require('@aws-cdk/cdk');
 const ecs = require('@aws-cdk/aws-ecs');
+const ecr = require('@aws-cdk/aws-ecr');
 const ec2 = require('@aws-cdk/aws-ec2');
 const elbv2 = require('@aws-cdk/aws-elasticloadbalancingv2');
 
 class GreetingStack extends cdk.Stack {
   constructor(parent, id, props) {
     super(parent, id, props);
+
+    const source_version = 'f52eda7aa5bd56e58c8b0362939ac5006d50a505';
+    const greeter_image = ecr.RepositoryBase.import(this, 'greeter', { repositoryName: 'greeter' })
+    const greeting_image = ecr.RepositoryBase.import(this, 'greeting', { repositoryName: 'greeting' })
+    const name_image = ecr.RepositoryBase.import(this, 'name', { repositoryName: 'name' })
 
     const vpc = new ec2.VpcNetwork(this, 'GreetingVpc', { maxAZs: 2 });
 
@@ -22,7 +28,7 @@ class GreetingStack extends cdk.Stack {
     const nameTaskDefinition = new ecs.Ec2TaskDefinition(this, 'name-task-definition', {});
 
     const nameContainer = nameTaskDefinition.addContainer('name', {
-      image: ecs.ContainerImage.fromDockerHub('nathanpeck/name'),
+      image: ecs.ContainerImage.fromEcrRepository(name_image, source_version),
       memoryLimitMiB: 128
     });
 
@@ -40,7 +46,7 @@ class GreetingStack extends cdk.Stack {
     const greetingTaskDefinition = new ecs.Ec2TaskDefinition(this, 'greeting-task-definition', {});
 
     const greetingContainer = greetingTaskDefinition.addContainer('greeting', {
-      image: ecs.ContainerImage.fromDockerHub('nathanpeck/greeting'),
+      image: ecs.ContainerImage.fromEcrRepository(greeting_image, source_version),
       memoryLimitMiB: 128
     });
 
@@ -74,6 +80,7 @@ class GreetingStack extends cdk.Stack {
       port: 80,
       pathPattern: '/name*',
       priority: 1,
+      deregistrationDelaySec: 1,
       targets: [nameService]
     });
 
@@ -81,6 +88,7 @@ class GreetingStack extends cdk.Stack {
       port: 80,
       pathPattern: '/greeting*',
       priority: 2,
+      deregistrationDelaySec: 1,
       targets: [greetingService]
     });
 
@@ -88,7 +96,7 @@ class GreetingStack extends cdk.Stack {
     const greeterTaskDefinition = new ecs.Ec2TaskDefinition(this, 'greeter-task-definition', {});
 
     const greeterContainer = greeterTaskDefinition.addContainer('greeter', {
-      image: ecs.ContainerImage.fromDockerHub('nathanpeck/greeter'),
+      image: ecs.ContainerImage.fromEcrRepository(greeter_image, source_version),
       memoryLimitMiB: 128,
       environment: {
         GREETING_URL: 'http://' + internalLB.dnsName + '/greeting',
@@ -116,6 +124,7 @@ class GreetingStack extends cdk.Stack {
 
     externalListener.addTargets('greeter', {
       port: 80,
+      deregistrationDelaySec: 1,
       targets: [greeterService]
     });
 

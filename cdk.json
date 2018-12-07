@@ -1,14 +1,11 @@
 {
   "app": "node index.js",
   "context": {
-    "availability-zones:account=209640446841:region=us-east-1": [
-      "us-east-1a",
-      "us-east-1b",
-      "us-east-1c",
-      "us-east-1d",
-      "us-east-1e",
-      "us-east-1f"
+    "availability-zones:account=733673854725:region=us-east-2": [
+      "us-east-2a",
+      "us-east-2b",
+      "us-east-2c"
     ],
-    "ssm:account=209640446841:parameterName=/aws/service/ecs/optimized-ami/amazon-linux/recommended:region=us-east-1": "{\"schema_version\":1,\"image_name\":\"amzn-ami-2018.03.h-amazon-ecs-optimized\",\"image_id\":\"ami-07eb698ce660402d2\",\"os\":\"Amazon Linux\",\"ecs_runtime_version\":\"Docker version 18.06.1-ce\",\"ecs_agent_version\":\"1.21.0\"}"
+    "ssm:account=733673854725:parameterName=/aws/service/ecs/optimized-ami/amazon-linux/recommended:region=us-east-2": "{\"schema_version\":1,\"image_name\":\"amzn-ami-2018.03.i-amazon-ecs-optimized\",\"image_id\":\"ami-0307f7ccf6ea35750\",\"os\":\"Amazon Linux\",\"ecs_runtime_version\":\"Docker version 18.06.1-ce\",\"ecs_agent_version\":\"1.22.0\"}"
   }
 }
